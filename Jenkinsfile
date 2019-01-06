@@ -1,22 +1,53 @@
 pipeline {
     agent any
+    
+    tools  {
+        maven 'MAVEN'
+    }
+    
     stages {
-        stage ('Initialize') {
+        stage ('Build Servlet Project') {
             steps {
-                echo  "Initializing the Code File"
+                /*For windows machine */
+               bat  'mvn clean package'
+
+            }
+
+            post{
+                success{
+                    echo 'Now Archiving ....'
+
+                    archiveArtifacts artifacts : '**/*.war'
+                }
             }
         }
 
-        stage ('Build'){
+        stage ('Deploy Build in Staging Area'){
             steps{
-               echo 'Hello World'
+
+                build job : 'Deploy staging area pipeline'
+
             }
         }
 
-        stage ('Deploy'){
+        stage ('Deploy to Production'){
             steps{
-               echo 'Deployed an Artifact'
+                timeout (time: 5, unit:'DAYS'){
+                    input message: 'Approve PRODUCTION Deployment?'
+                }
+                
+                build job : 'Deploy production pipeline'
             }
-        }    
-    }      
- }
+
+            post{
+                success{
+                    echo 'Deployment on PRODUCTION is Successful'
+                }
+
+                failure{
+                    echo 'Deployement Failure on PRODUCTION'
+                }
+            }
+        }
+    }
+}
