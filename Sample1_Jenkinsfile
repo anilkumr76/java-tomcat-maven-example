@@ -1,37 +1,23 @@
-pipeline{
-
-    /* A decalarative pipeline*/
+pipeline {
     agent any
-
-    stages{
-
-        agent ABC
-
-        stage('Build'){
-
-            steps{
-
-
+    stages {
+        stage ('Initializing') {
+            steps {
+                echo  "Initializing the Code File"
             }
         }
 
-        agent XYZ
-
-        stage('Deploy to Staging'){
-            /*Agent selection could go here as well*/
+        stage ('Build'){
             steps{
-
-
+               echo 'Hello World'
             }
-
         }
-    }
-}
 
-wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | apt-key add -
- 
-echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list
- 
-apt-get update
- 
-apt-get install jenkins
+        stage ('Deploy'){
+            steps{
+            
+               build job: 'Deploy staging area pipeline'
+            }
+        }    
+    }      
+ }
